@@ -277,7 +277,7 @@ function startRound(room) {
   const { hands, hidden } = R.deal(shuffle(R.makeDeck(n, room.cfg.jokers)), n);
   // 남는 장은 자리 순서와 상관없이 고르게 — 앞자리가 늘 한 장 더 받지 않게 섞어서 나눈다
   const seats = shuffle(room.players.slice());
-  seats.forEach((p, i) => { p.hand = R.sortCards(hands[i], false); p.out = false; p.title = null; p.foul = false; });
+  seats.forEach((p, i) => { p.hand = R.sortCards(hands[i], false); p.out = false; p.title = null; p.foulWhy = null; p.howOut = null; });
   room.hidden = hidden.length;
   pushLog(room, { k: 'round', round: room.round });
 
@@ -458,7 +458,8 @@ function play(room, p, ids) {
   clearTurn(room);
 
   const ef = R.effects(cards, it, room.field, room.cfg);
-  const foul = cards.length === p.hand.length && R.foulFinish(cards, it, ctx.rev, room.cfg);
+  const foulWhy = cards.length === p.hand.length ? R.foulWhy(cards, it, ctx.rev, room.cfg) : null;
+  const foul = !!foulWhy;
   p.hand = p.hand.filter(c => !ids.includes(c.id));
   room.field = { cards: R.sortCards(cards, false).map(c => ({ id: c.id, s: c.s, r: c.r })), it, by: p.id };
   room.lastBy = p.id;
@@ -468,13 +469,14 @@ function play(room, p, ids) {
   if (ef.jback) room.jrev = !room.jrev;
 
   room.fxSeq++;
-  room.fx = { seq: room.fxSeq, kind: 'play', by: p.id, n: cards.length, rev: ef.revolution ? room.rev : null, eight: ef.eight, s3: ef.s3, lock: ef.lock && room.lock === ef.lock ? ef.lock : null, jback: ef.jback ? room.jrev : null, foul };
+  room.fx = { seq: room.fxSeq, kind: 'play', by: p.id, n: cards.length, rev: ef.revolution ? room.rev : null, eight: ef.eight, s3: ef.s3, lock: ef.lock && room.lock === ef.lock ? ef.lock : null, jback: ef.jback ? room.jrev : null, foul, foulWhy };
   pushLog(room, { k: 'play', by: p.id, cards: room.field.cards, rev: ef.revolution, eight: ef.eight, s3: ef.s3, lock: !!(ef.lock), jback: ef.jback });
 
   // 손을 다 털었다
   let miyakoId = null;
   if (!p.hand.length) {
     finishPlayer(room, p, foul ? 'foul' : 'win');
+    p.foulWhy = foulWhy;
     room.fx.done = foul ? 'foul' : 'win';
     // 도시 추락 — 지난 판 대부호가 아닌 사람이 처음으로 1등을 하면, 지난 판 대부호는 바로 꼴찌
     if (!foul && room.cfg.miyako && room.order.length === 1 && room.round > 1) {
@@ -486,7 +488,7 @@ function play(room, p, ids) {
         pushLog(room, { k: 'miyako', by: king.id });
       }
     }
-    if (foul) pushLog(room, { k: 'foul', by: p.id });
+    if (foul) pushLog(room, { k: 'foul', by: p.id, why: foulWhy });
     if (checkRoundEnd(room)) return;
   }
 
@@ -583,7 +585,7 @@ function stateFor(room, me) {
     log: room.log,
     players: room.players.map(p => ({
       id: p.id, name: p.name, bot: p.bot, connected: p.connected, face: p.face,
-      hand: p.hand.length, out: p.out, howOut: p.howOut || null, title: p.title || null,
+      hand: p.hand.length, out: p.out, howOut: p.howOut || null, foulWhy: p.foulWhy || null, title: p.title || null,
       score: p.score, hist: p.hist,
     })),
   };

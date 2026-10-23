@@ -32,21 +32,21 @@
 
 <!-- ───────────────── 타이틀 ───────────────── -->
 <section id="title" class="screen on">
-  <div class="hero">
-    <div class="hero-art">
-      <img class="hero-img" src="/img/title.webp" alt="금빛 계단 꼭대기의 대부호와 아래에서 올려다보는 대빈민">
-      <div class="hero-cards" aria-hidden="true" id="heroCards"></div>
-    </div>
-    <h1 class="logo"><span class="logo-sm">먼저 털면 부자, 꼴찌는 거지</span>대부호</h1>
-    <p class="tag">혁명 한 번이면 세상이 뒤집힌다</p>
-
+  <div class="tt-bg" role="img" aria-label="금빛 계단 꼭대기의 대부호와 아래에서 올려다보는 대빈민"></div>
+  <div class="tt-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="tt-main">
+    <div class="tt-fan" id="ttFan" aria-hidden="true"></div>
+    <p class="tt-kicker">大富豪</p>
+    <h1 class="logo">대부호</h1>
+    <div class="tt-rule" aria-hidden="true">◆</div>
+    <p class="tag">먼저 털면 부자, 꼴찌는 거지.<br>혁명 한 번이면 세상이 뒤집힌다.</p>
     <div class="title-actions">
-      <button id="bBegin" class="btn gold big">시작하기</button>
-      <button class="btn ghost" data-help>규칙 보기</button>
+      <button id="bBegin" class="plaque">시작하기</button>
+      <button class="plaque ghost" data-help>규칙 보기</button>
     </div>
-    <p class="hero-foot">2~6인 온라인 · 혼자면 봇과 함께 · 혁명 · 8 자르기 · 문양 묶기</p>
-    <p class="legal">대부호(大富豪 · 大貧民)는 일본에서 널리 즐기는 전통 트럼프 놀이입니다. 이 페이지는 비상업 개인 프로젝트이며 수익이 없습니다.<br>게임 내 그림은 AI로 생성한 창작물입니다. 문의: gyolno2@naver.com</p>
+    <ul class="tt-feats"><li>2~6인 온라인</li><li>봇과 혼자서도</li><li>혁명 · 8 자르기 · 세금</li></ul>
   </div>
+  <p class="legal">대부호(大富豪 · 大貧民)는 일본에서 널리 즐기는 전통 트럼프 놀이입니다. 이 페이지는 비상업 개인 프로젝트이며 수익이 없습니다.<br>게임 내 그림은 AI로 생성한 창작물입니다. 문의: gyolno2@naver.com</p>
 </section>
 
 <!-- ───────────────── 방 고르기 ───────────────── -->
@@ -152,6 +152,7 @@
     <span class="pill lock" id="gLock" hidden></span>
     <span class="pill" id="gSpecN" hidden></span>
     <span class="spacer"></span>
+    <button class="btn ghost sm icon chat-bar" id="bChatBar" aria-label="채팅">💬<span class="chat-n" id="chatN2" hidden></span></button>
     <button class="btn ghost sm icon" id="bLog" aria-label="지난 수">📜</button>
     <button class="btn ghost sm icon" data-help aria-label="규칙">?</button>
     <button class="btn ghost sm icon" data-mute aria-label="소리">🔊</button>
@@ -164,6 +165,8 @@
       <div class="pile" id="pile"></div>
       <p class="status" id="status"></p>
     </div>
+    <!-- 세기 순서(족보) — 혁명이면 뒤집힌다 -->
+    <div class="ladder" id="ladder" aria-label="카드 세기 순서"></div>
   </div>
 
   <!-- 카드 바꾸기 · 판 결과 -->

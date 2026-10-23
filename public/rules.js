@@ -160,13 +160,18 @@
     };
   }
 
-  /** 이 카드로 손을 털면 반칙인가 — 조커 · 8(8 자르기를 쓸 때) · 가장 센 숫자 · ♠3 되치기 */
-  function foulFinish(cards, it, rev, rules) {
-    if (!rules.foul) return false;
-    if (it && it.s3) return true;
+  /** 이 카드로 손을 털면 반칙인가 — 왜 반칙인지 짧은 말로, 아니면 null
+   *  조커 · 8(8 자르기를 쓸 때) · 가장 센 숫자(평소 2, 혁명 중 3) · ♠3 되치기. 계단 · 짝 속에 섞여 있어도 반칙이다. */
+  function foulWhy(cards, it, rev, rules) {
+    if (!rules.foul) return null;
+    if (it && it.s3) return '♠3 되치기로 끝냄';
+    if (cards.some(isJoker)) return '조커로 끝냄';
+    if (rules.eight && cards.some(c => c.r === 8)) return '8로 끝냄';
     const top = rev ? 3 : 15;
-    return cards.some(c => isJoker(c) || (rules.eight && c.r === 8) || c.r === top);
+    if (cards.some(c => c.r === top)) return rev ? '혁명 중에 3으로 끝냄' : '2로 끝냄';
+    return null;
   }
+  const foulFinish = (cards, it, rev, rules) => !!foulWhy(cards, it, rev, rules);
 
   /* ─────────────────────────── 낼 수 있는 것 모두 ─────────────────────────── */
 
@@ -337,7 +342,7 @@
   const R = {
     SUITS, JOKER, SUIT_SYM, DEFAULT_RULES, RULE_KEYS, TITLE_PTS, TITLE_KEY,
     str, rankName, cardName, makeDeck, deal, isJoker, sortCards,
-    analyze, power, judge, effects, foulFinish, allPlays, legalPlays,
+    analyze, power, judge, effects, foulFinish, foulWhy, allPlays, legalPlays,
     titles, exchangePairs, strongest, handCost, botPlay, botGiveBack,
   };
 

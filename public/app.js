@@ -69,7 +69,7 @@ function cardHTML(c, cls = '') {
 }
 
 /* 타이틀 · 규칙 화면의 카드 */
-$('#heroCards').innerHTML = cardHTML({ s: 'S', r: 14 }, 'hcard hc1') + cardHTML({ s: 'X', r: 16 }, 'hcard hc2') + cardHTML({ s: 'H', r: 13 }, 'hcard hc3');
+$('#ttFan').innerHTML = cardHTML({ s: 'S', r: 3 }, 'c1') + cardHTML({ s: 'X', r: 16 }, 'c2') + cardHTML({ s: 'S', r: 14 }, 'c3');
 $('#strengthRow').innerHTML = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((r, i) => cardHTML({ s: DR.SUITS[i % 4], r }, 'mini')).join('') + cardHTML({ s: 'X', r: 16 }, 'mini');
 $('#rankStrip').innerHTML = ['king', 'rich', 'mid', 'poor', 'beggar'].map(k => `<figure><img src="${faceImg(k)}" alt=""><figcaption>${FACE_NAME[k]}</figcaption></figure>`).join('');
 
@@ -357,11 +357,12 @@ function addChat(name, text, mine) {
   if (document.hidden || !document.hasFocus()) { chatAway++; chatTitle(); }
 }
 function chatBadge() {
-  const n = $('#chatN');
-  n.textContent = chatUnread > 99 ? '99+' : chatUnread;
-  n.hidden = !chatUnread;
-  if (!chatUnread) return;
-  n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop');
+  for (const n of [$('#chatN'), $('#chatN2')]) {
+    n.textContent = chatUnread > 99 ? '99+' : chatUnread;
+    n.hidden = !chatUnread;
+    if (!chatUnread) continue;
+    n.classList.remove('pop'); void n.offsetWidth; n.classList.add('pop');
+  }
 }
 function chatPeek(name, text) {
   const p = $('#chatPeek');
@@ -379,12 +380,13 @@ document.addEventListener('visibilitychange', chatBack);
 window.addEventListener('focus', chatBack);
 function syncChatVisible() {
   const humans = S ? S.players.filter(p => !p.bot).length + (S.specs ? S.specs.length : 0) : 0;
-  const on = humans > 1;
+  const on = !!S && screen !== 'title' && screen !== 'setup';
   $('#chatBtn').hidden = !on;
   if (!on) { $('#chat').hidden = true; chatPeekOff(); }
-  else $('#chatWho').textContent = `${humans}명`;
+  else $('#chatWho').textContent = humans > 1 ? `${humans}명` : '지금은 나 혼자 — 초대 링크로 불러 보세요';
 }
 $('#chatBtn').onclick = () => chatOpen($('#chat').hidden);
+$('#bChatBar').onclick = () => chatOpen($('#chat').hidden);
 $('#chatPeek').onclick = () => chatOpen(true);
 $('#chatX').onclick = () => chatOpen(false);
 $('#chatForm').addEventListener('submit', e => {
@@ -677,7 +679,7 @@ function renderHand(mode) {
   }).join('')}</div>`;
 }
 let newTaxRound = 0;
-const cardW = () => (innerWidth <= 420 ? 58 : innerWidth <= 760 ? 70 : 86);
+const cardW = () => (innerWidth <= 420 ? 66 : innerWidth <= 760 ? 84 : Math.round(Math.max(90, Math.min(132, innerHeight * 0.155))));
 
 $('#hand').addEventListener('click', e => {
   const b = e.target.closest('[data-cid]');
@@ -720,9 +722,9 @@ function renderActs(mode) {
   const cards = selCards();
   const it = cards.length ? DR.judge(cards, S.field, ctxNow()) : null;
   play.disabled = !it;
-  const foul = it && cards.length === S.hand.length && DR.foulFinish(cards, it, ctxNow().rev, S.cfg);
+  const foul = it && cards.length === S.hand.length && DR.foulWhy(cards, it, ctxNow().rev, S.cfg);
   play.classList.toggle('warn', !!foul);
-  play.textContent = !cards.length ? '내기' : !it ? '낼 수 없음' : foul ? '내기 (반칙 마무리!)' : `내기 · ${playName(cards, it)}`;
+  play.textContent = !cards.length ? '내기' : !it ? '낼 수 없음' : foul ? `반칙 마무리! (${foul})` : `내기 · ${playName(cards, it)}`;
 }
 
 function playName(cards, it) {
@@ -761,6 +763,26 @@ $('#bHint').onclick = () => {
   renderHand('play'); renderActs('play');
 };
 
+/** 세기 순서 — 약한 것부터 강한 것까지. 혁명(J 백 포함)이면 숫자 쪽이 뒤집히고, 조커는 늘 맨 끝(가장 셈) */
+let ladderRev = null;
+function renderLadder() {
+  const rev = S.rev !== S.jrev;
+  const ranks = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  const order = rev ? ranks.slice().reverse() : ranks;
+  const on = new Set();
+  if (S.field) {
+    const it = S.field.it;
+    if (it.type === 'group') on.add(it.rank === 16 ? 16 : it.rank);
+    else for (let r = it.lo; r <= it.hi; r++) on.add(r);
+  }
+  const box = $('#ladder');
+  const flip = ladderRev !== null && ladderRev !== rev;
+  ladderRev = rev;
+  box.className = 'ladder' + (rev ? ' rev' : '') + (flip ? ' flip' : '');
+  box.innerHTML = `<span class="lh">약</span>${order.map((r, i) => `<i class="${on.has(r) ? 'on' : ''}" style="--i:${i}">${rn(r)}</i>`).join('')}<span class="lsep">·</span><i class="jk${on.has(16) ? ' on' : ''}" style="--i:13">JOKER</i><span class="lh">강</span>`
+    + (rev ? `<b class="lrev">${S.rev ? '혁명 중' : 'J 백'}</b>` : '');
+}
+
 function renderBar() {
   $('#gRound').textContent = `${S.round} / ${S.cfg.rounds}판`;
   $('#gRev').hidden = !S.rev;
@@ -785,6 +807,7 @@ function renderGame(prev) {
   if (S.lastTax && S.step !== 'exchange' && lastStep === 'exchange') newTaxRound = S.round;
   lastStep = S.step;
   renderBar();
+  renderLadder();
   renderSeats();
   renderMe();
   renderPile();
@@ -840,10 +863,10 @@ function playFx(prev) {
   else if (fx.lock) banner(`<b>縛</b><span>문양 묶기 ${fx.lock.split('').map(s => sv(s, 'lk ' + (isRed(s) ? 'red' : 'blk'))).join('')}</span>`, 'lock');
   if (fx.done) {
     const p = playerOf(fx.by);
-    if (fx.done === 'foul') { setTimeout(() => banner(`<b>反則</b><span>${esc(nameOf(fx.by))} 반칙 마무리 — 꼴찌로!</span>`, 'foul'), 900); sfx.fall(); }
+    if (fx.done === 'foul') { setTimeout(() => banner(`<b>反則</b><span>${esc(nameOf(fx.by))} 반칙 마무리 — ${esc(fx.foulWhy || '')}, 꼴찌로!</span>`, 'foul'), 900); sfx.fall(); }
     else if (p) { const i = placeOf(p); toast(`${nameOf(fx.by)}${josa(nameOf(fx.by), '이', '가')} 손을 다 털었다! ${i != null ? (i + 1) + '등' : ''}`); if (fx.by === me) sfx.win(); }
   }
-  if (fx.miyako) setTimeout(() => { banner(`<b>都落</b><span>도시 추락! ${esc(nameOf(fx.miyako))} 대빈민으로</span>`, 'foul'); sfx.fall(); }, 1100);
+  if (fx.miyako) setTimeout(() => { banner(`<b>都落</b><span>도시 추락! 지난 판 대부호 ${esc(nameOf(fx.miyako))}, 1등을 놓쳐 바로 대빈민</span>`, 'foul'); sfx.fall(); }, 1100);
 }
 
 /* ── 판 결과 ── */
@@ -858,7 +881,7 @@ function renderRoundEnd() {
   const last = S.round >= S.cfg.rounds;
   $('#ovlIn').innerHTML = `<h3>${S.round}판 결과</h3><ol class="rlist">${S.ranking.map((id, i) => {
     const p = playerOf(id); const t = titles[i];
-    const how = p.howOut === 'miyako' ? '<small class="how">도시 추락</small>' : p.howOut === 'foul' ? '<small class="how">반칙</small>' : '';
+    const how = p.howOut === 'miyako' ? '<small class="how">도시 추락 — 지난 판 대부호가 1등을 놓침</small>' : p.howOut === 'foul' ? `<small class="how">반칙 마무리${p.foulWhy ? ' — ' + esc(p.foulWhy) : ''}</small>` : '';
     return `<li class="${id === me ? 'mine' : ''}"><img src="${faceImg(TITLE_FACE[t])}" alt=""><span class="rt-t t-${TITLE_FACE[t]}">${t}</span><b>${esc(p.name)}${id === me ? ' (나)' : ''}</b>${how}<span class="rp">+${DR.TITLE_PTS[t]} · ${p.score}점</span></li>`;
   }).join('')}</ol><p class="muted small">${last ? '곧 최종 순위가 나와요' : `곧 ${S.round + 1}판 — 세금을 내고 시작해요`}</p>`;
   const myI = S.ranking.indexOf(me);
@@ -879,7 +902,7 @@ function renderLog() {
     if (e.k === 'round') return `<li class="sep">${e.round}판 시작</li>`;
     if (e.k === 'tax') return '<li class="sep">세금 — 카드 바꿈</li>';
     if (e.k === 'miyako') return `<li class="bad">${esc(nameOf(e.by))} 도시 추락</li>`;
-    if (e.k === 'foul') return `<li class="bad">${esc(nameOf(e.by))} 반칙 마무리</li>`;
+    if (e.k === 'foul') return `<li class="bad">${esc(nameOf(e.by))} 반칙 마무리${e.why ? ` — ${esc(e.why)}` : ''}</li>`;
     if (e.k === 'end') return `<li class="sep">${e.round}판 끝</li>`;
     return '';
   });
