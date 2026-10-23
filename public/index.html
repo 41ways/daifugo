@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10142a">
+<title>대부호</title>
+<meta name="description" content="일본 카드 게임 대부호(大富豪) — 먼저 손을 털면 대부호, 꼴찌는 대빈민. 혁명 · 8 자르기 · 문양 묶기. 2~6인 온라인">
+<meta property="og:title" content="대부호">
+<meta property="og:description" content="먼저 털면 대부호, 꼴찌는 대빈민. 혁명 한 번이면 세상이 뒤집힌다 · 2~6인 온라인">
+<meta property="og:image" content="https://daifugo.41ways.workers.dev/img/og.jpg">
+<meta property="og:url" content="https://daifugo.41ways.workers.dev/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="/fonts/gowun-b.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/img/title.webp" as="image">
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/img/rk_king.webp" type="image/webp">
+</head>
+<body>
+
+<!-- 무늬 그림 — 글꼴마다 ♥ 가 이모지로 바뀌는 일이 없게 SVG 로 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-H" viewBox="0 0 100 100"><path d="M50 90C22 68 4 50 4 30 4 15 16 5 29 5c10 0 17 6 21 14C54 11 61 5 71 5c13 0 25 10 25 25 0 20-18 38-46 60z"/></symbol>
+  <symbol id="s-D" viewBox="0 0 100 100"><path d="M50 2C60 20 74 36 90 50 74 64 60 80 50 98 40 80 26 64 10 50 26 36 40 20 50 2z"/></symbol>
+  <symbol id="s-S" viewBox="0 0 100 100"><path d="M50 3C42 20 6 38 6 62c0 14 11 23 23 23 8 0 14-4 17-9-1 8-5 15-13 20h34c-8-5-12-12-13-20 3 5 9 9 17 9 12 0 23-9 23-23C94 38 58 20 50 3z"/></symbol>
+  <symbol id="s-C" viewBox="0 0 100 100"><circle cx="50" cy="27" r="20"/><circle cx="26" cy="58" r="20"/><circle cx="74" cy="58" r="20"/><path d="M42 44h16v12H42z"/><path d="M47 58c-1 16-6 28-15 37h36c-9-9-14-21-15-37z"/></symbol>
+  <symbol id="coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="currentColor"/><circle cx="50" cy="50" r="38" fill="none" stroke="#7a5412" stroke-width="3"/><rect x="38" y="38" width="24" height="24" fill="#2a1c06"/></symbol>
+</svg>
+
+<div class="sky" aria-hidden="true"></div>
+
+<!-- ───────────────── 타이틀 ───────────────── -->
+<section id="title" class="screen on">
+  <div class="hero">
+    <div class="hero-art">
+      <img class="hero-img" src="/img/title.webp" alt="금빛 계단 꼭대기의 대부호와 아래에서 올려다보는 대빈민">
+      <div class="hero-cards" aria-hidden="true" id="heroCards"></div>
+    </div>
+    <h1 class="logo"><span class="logo-sm">먼저 털면 부자, 꼴찌는 거지</span>대부호</h1>
+    <p class="tag">혁명 한 번이면 세상이 뒤집힌다</p>
+
+    <div class="title-actions">
+      <button id="bBegin" class="btn gold big">시작하기</button>
+      <button class="btn ghost" data-help>규칙 보기</button>
+    </div>
+    <p class="hero-foot">2~6인 온라인 · 혼자면 봇과 함께 · 혁명 · 8 자르기 · 문양 묶기</p>
+    <p class="legal">대부호(大富豪 · 大貧民)는 일본에서 널리 즐기는 전통 트럼프 놀이입니다. 이 페이지는 비상업 개인 프로젝트이며 수익이 없습니다.<br>게임 내 그림은 AI로 생성한 창작물입니다. 문의: gyolno2@naver.com</p>
+  </div>
+</section>
+
+<!-- ───────────────── 방 고르기 ───────────────── -->
+<section id="setup" class="screen">
+  <div class="panel gate">
+    <img class="peek-art pa-gate" src="/img/rk_rich.webp" alt="" aria-hidden="true">
+    <button id="bBack" class="back" aria-label="뒤로">‹</button>
+    <h2 class="panel-title">어느 저택에 들어갈까요</h2>
+
+    <label class="field">
+      <span>이름</span>
+      <input id="gName" maxlength="12" placeholder="졸부" autocomplete="off">
+    </label>
+
+    <div class="gate-grid">
+      <div class="gate-col">
+        <button id="bCreate" class="btn gold big">새 판 열기</button>
+        <label class="check"><input type="checkbox" id="gPriv"><span>비공개 <small>목록엔 '비공개'로만, 코드로만 입장</small></span></label>
+        <label class="check"><input type="checkbox" id="gSpec" checked><span>관전 허용 <small>시작한 방에도 구경하러 들어올 수 있어요</small></span></label>
+        <div class="or"><span>또는 코드로</span></div>
+        <div class="join-row">
+          <input id="gCode" maxlength="4" placeholder="ABCD" autocomplete="off" spellcheck="false">
+          <button id="bJoin" class="btn">입장</button>
+        </div>
+      </div>
+      <div class="gate-col">
+        <p class="rooms-head">열린 판 <span id="roomCount" class="muted"></span></p>
+        <ul id="roomList" class="room-list"></ul>
+        <p id="roomEmpty" class="room-empty">지금 열린 판이 없어요.<br>새로 열고 친구를 불러 보세요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────── 대기실 ───────────────── -->
+<section id="lobby" class="screen">
+  <div class="panel lobby">
+    <img class="peek-art pa-lobby" src="/img/rk_beggar.webp" alt="" aria-hidden="true">
+    <header class="lobby-head">
+      <div class="code-box">
+        <p class="muted small">방 코드</p>
+        <p class="code" id="lCode">----</p>
+        <p class="muted small" id="lCount">1 / 6명</p>
+      </div>
+      <div class="head-actions">
+        <button id="bCopy" class="btn ghost sm">초대 링크 복사</button>
+        <button class="btn ghost sm" data-help>규칙</button>
+        <button class="btn ghost sm icon" data-mute aria-label="소리">🔊</button>
+        <button id="bLeave1" class="btn ghost sm danger">나가기</button>
+      </div>
+    </header>
+    <p class="spec-note" id="lSpecNote" hidden>관전 중 — 자리가 나면 같이 해요</p>
+    <p class="rule-line" id="lRule"></p>
+
+    <ul id="lPlayers" class="seat-cards"></ul>
+
+    <div id="lHostBox" class="host-box">
+      <div class="opt">
+        <div class="opt-text"><p class="opt-title">몇 판 할까요</p><p class="opt-desc">판마다 계급 점수를 모아 마지막에 순위를 낸다.</p></div>
+        <div class="seg" id="segRounds">
+          <button data-n="1">1판</button><button data-n="3">3판</button><button data-n="5">5판</button><button data-n="8">8판</button>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-text"><p class="opt-title">생각할 시간</p><p class="opt-desc">시간이 지나면 봇처럼 알아서 둔다.</p></div>
+        <div class="seg" id="segTime">
+          <button data-ms="15000">15초</button><button data-ms="30000">30초</button><button data-ms="60000">60초</button><button data-ms="0">무제한</button>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="opt-text"><p class="opt-title">조커</p><p class="opt-desc">아무 카드나 대신하는 가장 센 카드. (2인은 늘 1장)</p></div>
+        <div class="seg" id="segJoker">
+          <button data-j="0">없음</button><button data-j="1">1장</button><button data-j="2">2장</button>
+        </div>
+      </div>
+      <details class="rules-box" id="rulesBox">
+        <summary>규칙 고르기 <small id="rulesSum"></small></summary>
+        <div class="rule-toggles" id="ruleToggles"></div>
+      </details>
+      <div class="opt">
+        <div class="opt-text"><p class="opt-title">비공개</p><p class="opt-desc">열린 목록에 코드가 안 뜬다.</p></div>
+        <button id="tPriv" class="toggle" role="switch" aria-checked="false"><span></span></button>
+      </div>
+      <div class="opt">
+        <div class="opt-text"><p class="opt-title">관전 허용</p><p class="opt-desc">자리가 나면 다음 판부터 같이 한다.</p></div>
+        <button id="tSpec" class="toggle" role="switch" aria-checked="true"><span></span></button>
+      </div>
+      <div class="lobby-actions">
+        <button id="bBot" class="btn ghost">봇 부르기</button>
+        <button id="bStart" class="btn gold big">게임 시작</button>
+      </div>
+    </div>
+    <p id="lWait" class="wait hidden">방장이 시작하기를 기다리는 중…</p>
+  </div>
+</section>
+
+<!-- ───────────────── 게임 ───────────────── -->
+<section id="game" class="screen">
+  <header class="bar">
+    <span class="pill" id="gRound">1 / 5판</span>
+    <span class="pill rev" id="gRev" hidden>혁명 중</span>
+    <span class="pill jb" id="gJb" hidden>J 백</span>
+    <span class="pill lock" id="gLock" hidden></span>
+    <span class="pill" id="gSpecN" hidden></span>
+    <span class="spacer"></span>
+    <button class="btn ghost sm icon" id="bLog" aria-label="지난 수">📜</button>
+    <button class="btn ghost sm icon" data-help aria-label="규칙">?</button>
+    <button class="btn ghost sm icon" data-mute aria-label="소리">🔊</button>
+    <button id="bLeave2" class="btn ghost sm danger">나가기</button>
+  </header>
+
+  <div class="table" id="table">
+    <div class="opps" id="opps"></div>
+    <div class="stage" id="stage">
+      <div class="pile" id="pile"></div>
+      <p class="status" id="status"></p>
+    </div>
+  </div>
+
+  <!-- 카드 바꾸기 · 판 결과 -->
+  <div class="overlay" id="ovl" hidden><div class="ovl-in" id="ovlIn"></div></div>
+  <div class="banner" id="banner" hidden></div>
+
+  <div class="hand-wrap" id="handWrap">
+    <div class="me" id="meZone">
+      <span class="av" id="meAv"></span>
+      <div class="me-info">
+        <p class="me-name" id="meName"></p>
+        <p class="me-sub" id="meSub"></p>
+      </div>
+      <div class="me-acts" id="meActs">
+        <button class="btn ghost sm" id="bHint" title="낼 수 있는 조합을 차례로 골라 준다">추천 ↻</button>
+        <button class="btn ghost" id="bPass">패스</button>
+        <button class="btn gold" id="bPlay" disabled>내기</button>
+      </div>
+      <div class="reacts" id="reacts" aria-label="표정">
+        <button data-e="0" title="여유">😏</button><button data-e="1" title="고민">🤔</button><button data-e="2" title="깜짝">😱</button>
+        <button data-e="3" title="어이없음">🙄</button><button data-e="4" title="돈">💰</button><button data-e="5" title="박수">👏</button>
+      </div>
+    </div>
+    <div class="hand" id="hand"></div>
+  </div>
+</section>
+
+<!-- ───────────────── 끝 ───────────────── -->
+<section id="over" class="screen">
+  <div class="panel over">
+    <div class="over-art"><img id="oArt" src="/img/rk_king.webp" alt=""></div>
+    <h2 id="oTitle">최종 순위</h2>
+    <p class="over-sub" id="oSub"></p>
+    <ol class="final" id="oFinal"></ol>
+    <p class="spec-note" id="oSpecNote" hidden>관전 중 — 다시 하면 자리가 나는 대로 같이 해요</p>
+    <div class="over-actions">
+      <button id="bAgain" class="btn gold big">한 번 더</button>
+      <button id="bLeave3" class="btn ghost">나가기</button>
+    </div>
+    <p class="wait" id="oWait"></p>
+  </div>
+</section>
+
+<!-- ───────────────── 지난 수 ───────────────── -->
+<aside id="logBox" class="drawer" hidden>
+  <header><b>지난 수</b><button class="x" id="logX" aria-label="닫기">✕</button></header>
+  <ol id="logList"></ol>
+</aside>
+
+<!-- ───────────────── 규칙 ───────────────── -->
+<div id="help" class="modal hidden">
+  <div class="sheet">
+    <header class="sheet-head">
+      <h2>대부호 규칙</h2>
+      <button id="bHelpX" class="x" aria-label="닫기">✕</button>
+    </header>
+    <nav class="tabs" id="helpTabs">
+      <button class="on" data-tab="basic">기본</button>
+      <button data-tab="special">특수 규칙</button>
+      <button data-tab="rank">계급</button>
+    </nav>
+    <div class="sheet-body">
+      <div class="tabpage on" data-page="basic">
+        <p class="lead">손에 든 카드를 <b>가장 먼저 다 털어 낸 사람</b>이 대부호. 꼴찌는 대빈민이 된다.</p>
+        <div class="strength" id="strengthRow"></div>
+        <ol class="steps">
+          <li>세기는 <b>3이 가장 약하고 2가 가장 세다.</b> 조커는 그보다 세다. 무늬는 세기와 상관없다.</li>
+          <li>새로 낼 차례인 사람은 아무 꼴이나 낸다 — <b>한 장</b>, <b>같은 숫자 여러 장</b>(둘·셋·넷), 또는 <b>계단</b>(같은 무늬로 숫자가 이어진 3장 이상).</li>
+          <li>다음 사람부터는 바닥과 <b>같은 꼴 · 같은 장수</b>로 <b>더 센 카드</b>를 내거나 <b>패스</b>한다. 패스해도 다음 차례에 다시 낼 수 있다.</li>
+          <li>모두 패스해서 마지막에 낸 사람에게 차례가 돌아오면 바닥을 치우고 그 사람이 새로 낸다.</li>
+          <li><b>조커</b>는 아무 카드나 대신한다(짝·계단 빈칸). 혼자 내면 가장 센 한 장.</li>
+          <li>모두가 털 때까지 계속해 등수대로 계급이 정해지고, 다음 판 시작 전에 <b>세금</b>(카드 바꾸기)을 낸다.</li>
+        </ol>
+        <div class="callout"><b>첫 판</b>은 ♦3 을 가진 사람이, <b>다음 판부터</b>는 지난 판 대빈민이 먼저 낸다.<br>
+          <b>2인</b>은 3·4·5·J·Q·K·A·2 와 조커 1장(33장)만 쓰고 13장씩 받는다. 남은 7장은 아무도 모른다.</div>
+      </div>
+      <div class="tabpage" data-page="special">
+        <ul class="cardlist" id="specialList">
+          <li><span class="sp-ic">⚡</span><div><b>혁명</b> 같은 숫자 <b>4장 이상</b>을 내면 그 판이 끝날 때까지 세기가 뒤집힌다(3이 가장 세고 2가 가장 약하다). 또 4장을 내면 원래대로(반혁명). 조커는 늘 가장 세다.</div></li>
+          <li data-r="eight"><span class="sp-ic">✂️</span><div><b>8 자르기</b> 8이 섞인 카드를 내면 바닥이 바로 치워지고 낸 사람이 새로 낸다.</div></li>
+          <li data-r="lock"><span class="sp-ic">🔒</span><div><b>문양 묶기</b> 바로 앞 카드와 <b>무늬가 똑같은</b> 카드가 이어 나오면 묶인다. 바닥이 치워질 때까지 그 무늬로만 낼 수 있다(조커는 아무 무늬나 대신). 짝이면 두 무늬가 다 같아야 묶인다.</div></li>
+          <li data-r="spade3"><span class="sp-ic">♠</span><div><b>스페이드 3 되치기</b> 조커가 혼자 나와 있을 때 <b>♠3 한 장</b>을 내면 이기고 바닥이 치워진다.</div></li>
+          <li data-r="miyako"><span class="sp-ic">🏚️</span><div><b>도시 추락</b> 지난 판 대부호가 아닌 사람이 먼저 1등을 하면, 지난 판 대부호는 그 자리에서 손을 내려놓고 대빈민이 된다. (3인 이상)</div></li>
+          <li data-r="foul"><span class="sp-ic">🚫</span><div><b>반칙 마무리</b> 마지막 카드를 <b>조커 · 8 · 가장 센 숫자</b>(평소엔 2, 혁명 중엔 3)가 섞인 카드나 ♠3 되치기로 끝내면 반칙 — 바로 꼴찌로 간다.</div></li>
+          <li data-r="stairs"><span class="sp-ic">🪜</span><div><b>계단</b> 같은 무늬로 숫자가 이어진 3장 이상(예: ♥5·6·7). 같은 장수의 더 높은 계단으로만 받는다. 2 다음은 3 으로 이어지지 않는다.</div></li>
+          <li data-r="jback"><span class="sp-ic">🔄</span><div><b>J 백</b> (고르면) J가 섞인 카드를 내면 바닥이 치워질 때까지 세기가 잠깐 뒤집힌다.</div></li>
+        </ul>
+        <p class="muted small">일본 대부호 연맹의 5대 공식 규칙(혁명 · 8 자르기 · 도시 추락 · 문양 묶기 · 스페이드 3 되치기)이 기본으로 켜져 있다. 대기실에서 방장이 켜고 끌 수 있다.</p>
+      </div>
+      <div class="tabpage" data-page="rank">
+        <div class="rank-strip" id="rankStrip"></div>
+        <ol class="steps">
+          <li>등수대로 <b>대부호 · 부호 · 평민 · 빈민 · 대빈민</b>. 인원이 적으면 양 끝부터 생긴다(3인: 대부호 · 평민 · 대빈민, 4인: 평민 없음).</li>
+          <li><b>세금</b> — 다음 판 카드를 받으면 대빈민은 <b>가장 센 카드 2장</b>을 대부호에게, 빈민은 1장을 부호에게 바친다. 받은 쪽은 아무 카드나 같은 장수만큼 돌려준다.</li>
+          <li><b>점수</b> — 판마다 대부호 4 · 부호 3 · 평민 2 · 빈민 1 · 대빈민 0점. 정한 판 수를 마치면 점수 합으로 순위를 낸다.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- 같은 방 사람끼리 하는 채팅 — 봇만 있는 방에서는 뜨지 않는다 -->
+<button id="chatBtn" class="chat-btn" hidden aria-label="채팅 열기">💬<span class="chat-n" id="chatN" hidden></span></button>
+<div id="chatPeek" class="chat-peek" hidden role="status" aria-live="polite"></div>
+<section id="chat" class="chat" hidden aria-label="채팅">
+  <header class="chat-head"><b>채팅</b><span class="chat-sub" id="chatWho"></span><button class="chat-x" id="chatX" aria-label="닫기">✕</button></header>
+  <div class="chat-log" id="chatLog"></div>
+  <form class="chat-in" id="chatForm">
+    <input id="chatText" maxlength="200" placeholder="같은 방 사람들에게" autocomplete="off">
+    <button class="btn sm gold" type="submit">보내기</button>
+  </form>
+</section>
+
+<script src="/rules.js"></script>
+<script src="/app.js"></script>
+
+<!-- 방문 통계와 오류 수집 — 허브와 같은 곳으로 모인다.
+     GoatCounter 는 쿠키를 쓰지 않고 개인을 가려내지 않는다. 오류는 메시지·파일·줄만 보낸다. -->
+<script>
+(function () {
+  var APP = "daifugo";
+  if (/^(localhost|127\.)/.test(location.hostname)) { window.norara = { ev: function () {}, live: function () {} }; return; }
+  window.goatcounter = { path: APP };
+  var sc = document.createElement("script");
+  sc.async = true;
+  sc.src = "https://gc.zgo.at/count.js";
+  sc.setAttribute("data-goatcounter", "https://41ways.goatcounter.com/count");
+  document.head.appendChild(sc);
+
+  var sid = (function () {
+    try {
+      var s = sessionStorage.getItem("norara.sid");
+      if (!s) { s = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); sessionStorage.setItem("norara.sid", s); }
+      return s;
+    } catch (e) { return Math.random().toString(36).slice(2, 14); }
+  })();
+  var playing = false;
+  function beat(st) {
+    try {
+      navigator.sendBeacon("https://norara-errors.41ways.workers.dev/beat",
+        JSON.stringify({ app: APP, sid: sid, st: st || (playing ? "play" : "look") }));
+    } catch (e) {}
+  }
+  window.norara = {
+    ev: function (name, o) {
+      o = o || {}; o.app = APP; o.ev = name;
+      try { navigator.sendBeacon("https://norara-errors.41ways.workers.dev/ev", JSON.stringify(o)); } catch (e) {}
+      if (name === "start") window.norara.live(true);
+      if (name === "end") window.norara.live(false);
+    },
+    live: function (on) {
+      on = !!on;
+      if (on === playing) return;
+      playing = on;
+      if (document.visibilityState === "visible") beat();
+    }
+  };
+  setTimeout(function () { if (document.visibilityState === "visible") beat(); }, 2000);
+  setInterval(function () { if (document.visibilityState === "visible") beat(); }, 60000);
+  document.addEventListener("visibilitychange", function () { beat(document.visibilityState === "hidden" ? "gone" : null); });
+  addEventListener("pagehide", function () { beat("gone"); });
+  var came = Date.now(), told = false;
+  function leaving() {
+    if (told) return; told = true;
+    var sec = Math.round((Date.now() - came) / 1000);
+    if (sec >= 5) window.norara.ev("visit", { sec: sec });
+  }
+  addEventListener("pagehide", leaving);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") leaving(); });
+  var left = 5;
+  function send(o) {
+    if (left-- <= 0) return;
+    o.app = APP; o.page = location.pathname + location.search;
+    try { navigator.sendBeacon("https://norara-errors.41ways.workers.dev/report", JSON.stringify(o)); } catch (e) {}
+  }
+  addEventListener("error", function (e) {
+    if (!e.message) return;
+    send({ msg: e.message, src: e.filename, line: e.lineno, col: e.colno, stack: e.error && e.error.stack });
+  });
+  addEventListener("unhandledrejection", function (e) {
+    var r = e.reason;
+    send({ msg: "처리되지 않은 거절: " + ((r && r.message) || r), stack: r && r.stack });
+  });
+})();
+</script>
+</body>
+</html>

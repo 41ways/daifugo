@@ -1,0 +1,18 @@
+{
+  "name": "daifugo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "대부호(大富豪) — 먼저 털면 대부호, 꼴찌는 대빈민. 온라인 트럼프 게임",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test/rules.js && GAMES=40 node test/sim.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
