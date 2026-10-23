@@ -395,8 +395,9 @@ body.in-game { overflow: hidden; }
 .rlist li.mine { border: 1px solid var(--gold); }
 .rlist img { width: 44px; height: 44px; object-fit: cover; object-position: top; border-radius: 10px; background: #232a54; }
 .rt-t { font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+.rlist .rn { display: flex; flex-direction: column; min-width: 0; }
 .rlist b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rlist .how { grid-column: 3; font-size: 11px; color: #ffb4a6; margin-top: -4px; }
+.rlist .how { font-size: 11px; color: #ffb4a6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rp { font-family: var(--round); color: var(--gold); font-size: 13px; white-space: nowrap; }
 
 /* 큰 알림 — 혁명 · 8 자르기 … */

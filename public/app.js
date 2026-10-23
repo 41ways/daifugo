@@ -882,7 +882,7 @@ function renderRoundEnd() {
   $('#ovlIn').innerHTML = `<h3>${S.round}판 결과</h3><ol class="rlist">${S.ranking.map((id, i) => {
     const p = playerOf(id); const t = titles[i];
     const how = p.howOut === 'miyako' ? '<small class="how">도시 추락 — 지난 판 대부호가 1등을 놓침</small>' : p.howOut === 'foul' ? `<small class="how">반칙 마무리${p.foulWhy ? ' — ' + esc(p.foulWhy) : ''}</small>` : '';
-    return `<li class="${id === me ? 'mine' : ''}"><img src="${faceImg(TITLE_FACE[t])}" alt=""><span class="rt-t t-${TITLE_FACE[t]}">${t}</span><b>${esc(p.name)}${id === me ? ' (나)' : ''}</b>${how}<span class="rp">+${DR.TITLE_PTS[t]} · ${p.score}점</span></li>`;
+    return `<li class="${id === me ? 'mine' : ''}"><img src="${faceImg(TITLE_FACE[t])}" alt=""><span class="rt-t t-${TITLE_FACE[t]}">${t}</span><span class="rn"><b>${esc(p.name)}${id === me ? ' (나)' : ''}</b>${how}</span><span class="rp">+${DR.TITLE_PTS[t]} · ${p.score}점</span></li>`;
   }).join('')}</ol><p class="muted small">${last ? '곧 최종 순위가 나와요' : `곧 ${S.round + 1}판 — 세금을 내고 시작해요`}</p>`;
   const myI = S.ranking.indexOf(me);
   if (myI === 0) sfx.win(); else if (myI === S.ranking.length - 1 && myI > 0) sfx.fall();
